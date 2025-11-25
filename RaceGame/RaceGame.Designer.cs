@@ -100,7 +100,7 @@
 			// 
 			timerRoad.Enabled = true;
 			timerRoad.Interval = 1;
-			timerRoad.Tick += timerRoad_Tick;
+			timerRoad.Tick += TimerRoad_Tick;
 			// 
 			// panelGame
 			// 
@@ -171,7 +171,7 @@
 			buttonHelp.TabIndex = 82;
 			buttonHelp.Text = "Help";
 			buttonHelp.UseVisualStyleBackColor = true;
-			buttonHelp.Click += buttonHelp_Click;
+			buttonHelp.Click += ButtonHelp_Click;
 			// 
 			// buttonMenuExit
 			// 
@@ -183,7 +183,7 @@
 			buttonMenuExit.TabIndex = 67;
 			buttonMenuExit.Text = "Exit";
 			buttonMenuExit.UseVisualStyleBackColor = true;
-			buttonMenuExit.Click += buttonMenuExit_Click;
+			buttonMenuExit.Click += ButtonMenuExit_Click;
 			// 
 			// buttonStart
 			// 
@@ -195,7 +195,7 @@
 			buttonStart.TabIndex = 65;
 			buttonStart.Text = "Start";
 			buttonStart.UseVisualStyleBackColor = true;
-			buttonStart.Click += buttonStart_Click;
+			buttonStart.Click += ButtonStart_Click;
 			// 
 			// label3
 			// 
@@ -391,7 +391,7 @@
 			buttonExit.TabIndex = 53;
 			buttonExit.Text = "Exit";
 			buttonExit.UseVisualStyleBackColor = true;
-			buttonExit.Click += buttonExit_Click;
+			buttonExit.Click += ButtonExit_Click;
 			// 
 			// buttonResume
 			// 
@@ -403,7 +403,7 @@
 			buttonResume.TabIndex = 52;
 			buttonResume.Text = "Resume";
 			buttonResume.UseVisualStyleBackColor = true;
-			buttonResume.Click += buttonResume_Click;
+			buttonResume.Click += ButtonResume_Click;
 			// 
 			// pictureFlag
 			// 
@@ -548,7 +548,7 @@
 			buttonPause.TabIndex = 1;
 			buttonPause.Text = "Pause";
 			buttonPause.UseVisualStyleBackColor = true;
-			buttonPause.Click += buttonPause_Click;
+			buttonPause.Click += ButtonPause_Click;
 			// 
 			// mainCar
 			// 
@@ -688,13 +688,13 @@
 			// 
 			timerTowardCars.Enabled = true;
 			timerTowardCars.Interval = 1;
-			timerTowardCars.Tick += timerTowardCars_Tick;
+			timerTowardCars.Tick += TimerTowardCars_Tick;
 			// 
 			// timerMenu
 			// 
 			timerMenu.Enabled = true;
 			timerMenu.Interval = 1;
-			timerMenu.Tick += timerMenu_Tick;
+			timerMenu.Tick += TimerMenu_Tick;
 			// 
 			// RaceGame
 			// 

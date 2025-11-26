@@ -25,5 +25,10 @@
         public const int MenuCar1Speed = 5;
         public const int MenuCar2Speed = 3;
         public const int MenuCar3Speed = 4;
+
+        public const int RoadMarkingsCount = 5;
+        public const int MaxPlayerNameLength = 20;
+        public const int CoinsCount = 3;
+        public const int totalLanes = 4;
     }
 }

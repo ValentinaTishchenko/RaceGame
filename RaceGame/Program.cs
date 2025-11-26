@@ -8,10 +8,16 @@ namespace Race
 		[STAThread]
 		static void Main()
 		{
-			// To customize application configuration such as set high DPI settings or default font,
-			// see https://aka.ms/applicationconfiguration.
-			ApplicationConfiguration.Initialize();
-			Application.Run(new RaceGame());
-		}
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            
+            using var welcomeForm = new WelcomeForm();
+            var result = welcomeForm.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {                
+                Application.Run(new RaceGame(welcomeForm.PlayerName));
+            }
+        }
 	}
 }

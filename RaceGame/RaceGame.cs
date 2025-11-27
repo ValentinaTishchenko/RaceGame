@@ -1,319 +1,350 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Race
+﻿namespace Race
 {
-	public partial class RaceGame : Form
-	{
-		public RaceGame()
-		{
-			InitializeComponent();
-		}
+    public partial class RaceGame : Form
+    {
+        public RaceGame()
+        {
+            InitializeComponent();
+            InitializeGame();
+        }
 
-		Label[] LanesOne = new Label[5];
-		Label[] LanesTwo = new Label[5];
-		Label[] LanesMenuOne = new Label[5];
-		Label[] LanesMenuTwo = new Label[5];
-		Random r = new Random();
-		int score = 0;
-		int coins = 0;
-		int carSpeed = 2;
-		private void timerRoad_Tick(object sender, EventArgs e)
-		{
-			labelScore.Text = "Score: " + score / 10;
-			for (int i = 0; i < LanesOne.Length; ++i)
-			{
-				LanesOne[i].Top += carSpeed;
-				if (LanesOne[i].Top >= Height)
-				{
-					LanesOne[i].Top = -LanesOne[i].Height;
-				}
-				if (carSpeed != 0)
-					score++;
-			}
-			for (int i = 0; i < LanesTwo.Length; ++i)
-			{
-				LanesTwo[i].Top += carSpeed;
-				if (LanesTwo[i].Top >= Height)
-					LanesTwo[i].Top = -LanesTwo[i].Height;
-			}
-			Coin1.Top += carSpeed;
-			if (Coin1.Top > Height)
-			{
-				Coin1.Top = -Coin1.Height;
-				Coin1.Left = r.Next(0, Width - Coin1.Width);
-			}
-			Coin2.Top += carSpeed;
-			if (Coin2.Top > Height)
-			{
-				Coin2.Top = -Coin2.Height;
-				Coin2.Left = r.Next(0, Width - Coin2.Width);
-			}
-			Coin3.Top += carSpeed;
-			if (Coin3.Top > Height)
-			{
-				Coin3.Top = -Coin3.Height;
-				Coin3.Left = r.Next(0, Width - Coin3.Width);
-			}
-			coinsCollect();
-		}
-		void coinsCollect()
-		{
-			if (mainCar.Bounds.IntersectsWith(Coin1.Bounds))
-			{
-				coins++;
-				labelCoins.Text = "Coins: " + coins;
-				Coin1.Top = -Coin1.Height;
-				Coin1.Left = r.Next(0, 120);
-			}
-			if (mainCar.Bounds.IntersectsWith(Coin2.Bounds))
-			{
-				coins++;
-				labelCoins.Text = "Coins: " + coins;
-				Coin2.Top = -Coin2.Height;
-				Coin2.Left = r.Next(120, 240);
-			}
-			if (mainCar.Bounds.IntersectsWith(Coin3.Bounds))
-			{
-				coins++;
-				labelCoins.Text = "Coins: " + coins;
-				Coin3.Top = -Coin3.Height;
-				Coin3.Left = r.Next(240, 300);
-			}
-		}
+        
+        private const int MIN_COINS_FOR_CONTINUE = 15;
+        private const int CONTINUE_COST = 15;
+        private const int INITIAL_CAR_SPEED = 2;
+        private const int MAX_CAR_SPEED = 21;
+        private const int LANE_COUNT = 5;
+        private const int CAR_MOVE_STEP = 9;
 
-		private void RaceGame_Load(object sender, EventArgs e)
-		{
-			LanesOne[0] = LaneOne1;
-			LanesOne[1] = LaneOne2;
-			LanesOne[2] = LaneOne3;
-			LanesOne[3] = LaneOne4;
-			LanesOne[4] = LaneOne5;
+        
+        private readonly List<Label>[] laneGroups = new List<Label>[4];
+        private readonly List<PictureBox> coins = new List<PictureBox>();
+        private readonly List<PictureBox> towardCars = new List<PictureBox>();
+        private readonly List<PictureBox> menuCars = new List<PictureBox>();
 
-			LanesTwo[0] = LaneTwo1;
-			LanesTwo[1] = LaneTwo2;
-			LanesTwo[2] = LaneTwo3;
-			LanesTwo[3] = LaneTwo4;
-			LanesTwo[4] = LaneTwo5;
+        private Random random = new Random();
+        private int score = 0;
+        private int coinCount = 0;
+        private int carSpeed = INITIAL_CAR_SPEED;
 
-			LanesMenuOne[0] = MenuOneLane1;
-			LanesMenuOne[1] = MenuOneLane2;
-			LanesMenuOne[2] = MenuOneLane3;
-			LanesMenuOne[3] = MenuOneLane4;
-			LanesMenuOne[4] = MenuOneLane5;
+        private void InitializeGame()
+        {
+            InitializeLanes();
+            InitializeCoins();
+            InitializeCars();
+            SetupTimers(false);
+            ShowPanel(panelMenu);
+        }
 
-			LanesMenuTwo[0] = MenuTwoLane1;
-			LanesMenuTwo[1] = MenuTwoLane2;
-			LanesMenuTwo[2] = MenuTwoLane3;
-			LanesMenuTwo[3] = MenuTwoLane4;
-			LanesMenuTwo[4] = MenuTwoLane5;
+        private void InitializeLanes()
+        {
+            
+            laneGroups[0] = new List<Label> { LaneOne1, LaneOne2, LaneOne3, LaneOne4, LaneOne5 };
+            laneGroups[1] = new List<Label> { LaneTwo1, LaneTwo2, LaneTwo3, LaneTwo4, LaneTwo5 };
+            laneGroups[2] = new List<Label> { MenuOneLane1, MenuOneLane2, MenuOneLane3, MenuOneLane4, MenuOneLane5 };
+            laneGroups[3] = new List<Label> { MenuTwoLane1, MenuTwoLane2, MenuTwoLane3, MenuTwoLane4, MenuTwoLane5 };
+        }
 
-			timerRoad.Stop();
-			timerTowardCars.Stop();
-			panelMenu.Show();
-		}
+        private void InitializeCoins()
+        {
+            coins.Clear();
 
-		private void RaceGame_KeyDown(object sender, KeyEventArgs e)
-		{
-			if (carSpeed != 0)
-			{
-				if (e.KeyCode == Keys.Right)
-				{
-					//380
-					if (mainCar.Right < 500)
-						mainCar.Left += 9;
-				}
-				if (e.KeyCode == Keys.Left)
-				{
-					if (mainCar.Left > 0)
-						mainCar.Left -= 9;
-				}
-			}
-			if (e.KeyCode == Keys.Up)
-			{
-				if (carSpeed < 21)
-					carSpeed++;
-			}
-			if (e.KeyCode == Keys.Down)
-			{
-				if (carSpeed > 0)
-					carSpeed--;
-			}
-			if (e.KeyCode == Keys.Escape)
-			{
-				timerRoad.Enabled = false;
-				timerTowardCars.Enabled = false;
-				panelPause.Show();
-			}
-		}
+            coins.AddRange(new[] { coin1, coin2, coin3 });
+        }
 
-		private void timerTowardCars_Tick(object sender, EventArgs e)
-		{
-			towardCar1.Top += carSpeed + 4;
-			if (towardCar1.Top > Height)
-			{
-				towardCar1.Top = -towardCar1.Height;
-				towardCar1.Left = r.Next(0, Width - towardCar1.Width);
-			}
+        private void InitializeCars()
+        {
+            towardCars.Clear();
+            menuCars.Clear();
 
-			towardCar2.Top += carSpeed + 2;
-			if (towardCar2.Top > Height)
-			{
-				towardCar2.Top = -towardCar2.Height;
-				towardCar2.Left = r.Next(0, Width - towardCar2.Width);
-			}
+            towardCars.AddRange(new[] { towardCar1, towardCar2, towardCar3 });
+            menuCars.AddRange(new[] { carMenu1, carMenu2, carMenu3 });
+        }
 
-			towardCar3.Top += carSpeed + 3;
-			if (towardCar3.Top > Height)
-			{
-				towardCar3.Top = -towardCar3.Height;
-				towardCar3.Left = r.Next(0, Width - towardCar3.Width);
-			}
+        private void SetupTimers(bool enabled)
+        {
+            timerRoad.Enabled = enabled;
+            timerTowardCars.Enabled = enabled;
+        }
 
-			if (mainCar.Bounds.IntersectsWith(towardCar1.Bounds))
-				GameOver();
-			if (mainCar.Bounds.IntersectsWith(towardCar2.Bounds))
-				GameOver();
-			if (mainCar.Bounds.IntersectsWith(towardCar3.Bounds))
-				GameOver();
-		}
-		private void GameOver()
-		{
-			timerRoad.Stop();
-			timerTowardCars.Stop();
-			if (coins < 15)
-			{
-				DialogResult dd = MessageBox.Show("Game Over!", "Приехали!");
-				panelPause.Show();
-				panelMenu.Show();
-			}
-			else
-			{
-				DialogResult dr = MessageBox.Show("Продолжить? (-15 coins)", "Приехали!",
-				MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-				if (dr == DialogResult.Yes)
-					Restart();
-				else if (dr == DialogResult.No)
-				{
-					panelPause.Show();
-					panelMenu.Show();
-				}
-			}
-		}
+        private void ShowPanel(Panel panelToShow)
+        {
+            panelMenu.Hide();
+            panelGame.Hide();
+            panelPause.Hide();
+            panelToShow.Show();
+        }
 
-		private void Restart()
-		{
-			coins -= 15;
-			labelCoins.Text = "Coins: " + coins;
-			carSpeed = 2;
-			timerRoad.Start();
-			timerTowardCars.Start();
-			towardCar1.Top = -towardCar1.Height;
-			towardCar1.Left = r.Next(0, Width - towardCar1.Width);
-			towardCar2.Top = -towardCar2.Height;
-			towardCar2.Left = r.Next(0, Width - towardCar2.Width);
-			towardCar3.Top = -towardCar3.Height;
-			towardCar3.Left = r.Next(0, Width - towardCar3.Width);
-		}
-		private void StartGame()
-		{
-			score = 0;
-			coins = 0;
-			carSpeed = 2;
-			timerRoad.Start();
-			timerTowardCars.Start();
-			towardCar1.Top = -towardCar1.Height;
-			towardCar1.Left = r.Next(0, Width - towardCar1.Width);
-			towardCar2.Top = -towardCar2.Height;
-			towardCar2.Left = r.Next(0, Width - towardCar2.Width);
-			towardCar3.Top = -towardCar3.Height;
-			towardCar3.Left = r.Next(0, Width - towardCar3.Width);
-			panelPause.Hide();
-			panelGame.Show();
-			panelMenu.Hide();
-		}
-		private void timerMenu_Tick(object sender, EventArgs e)
-		{
-			for (int i = 0; i < LanesMenuOne.Length; ++i)
-			{
-				LanesMenuOne[i].Top += carSpeed;
-				if (LanesMenuOne[i].Top >= Height)
-				{
-					LanesMenuOne[i].Top = -LanesMenuOne[i].Height;
-				}
-			}
-			for (int i = 0; i < LanesMenuTwo.Length; ++i)
-			{
-				LanesMenuTwo[i].Top += carSpeed;
-				if (LanesMenuTwo[i].Top >= Height)
-					LanesMenuTwo[i].Top = -LanesMenuTwo[i].Height;
-			}
-			CarMenu1.Top += 5;
-			if (CarMenu1.Top > Height)
-			{
+        
+        private void TimerRoad_Tick(object sender, EventArgs e)
+        {
+            UpdateScore();
+            MoveLanes(laneGroups[0], laneGroups[1]);
+            MoveCoins();
+            CollectCoins();
+        }
 
-				CarMenu1.Top = -CarMenu1.Height;
-				CarMenu1.Left = r.Next(0, Width - CarMenu1.Width);
-			}
-			CarMenu2.Top += 3;
-			if (CarMenu2.Top > Height)
-			{
-				CarMenu2.Top = -CarMenu2.Height;
-				CarMenu2.Left = r.Next(0, Width - CarMenu2.Width);
-			}
-			CarMenu3.Top += 4;
-			if (CarMenu3.Top > Height)
-			{
-				CarMenu3.Top = -CarMenu3.Height;
-				CarMenu3.Left = r.Next(0, Width - CarMenu3.Width);
-			}
-		}
+        private void UpdateScore()
+        {
+            labelScore.Text = $"Score: {score / 10}";
+            if (carSpeed != 0) score++;
+        }
 
-		private void buttonPause_Click(object sender, EventArgs e)
-		{
+        private void MoveLanes(List<Label> lanesOne, List<Label> lanesTwo)
+        {
+            MoveLaneGroup(lanesOne);
+            MoveLaneGroup(lanesTwo);
+        }
 
-			timerRoad.Enabled = false;
-			timerTowardCars.Enabled = false;
-			panelPause.Show();
-		}
+        private void MoveLaneGroup(List<Label> lanes)
+        {
+            foreach (var lane in lanes)
+            {
+                lane.Top += carSpeed;
+                if (lane.Top >= Height)
+                {
+                    lane.Top = -lane.Height;
+                }
+            }
+        }
 
-		private void buttonResume_Click(object sender, EventArgs e)
-		{
-			timerRoad.Enabled = true;
-			timerTowardCars.Enabled = true;
-			panelPause.Hide();
-		}
+        private void MoveCoins()
+        {
+            foreach (var coin in coins)
+            {
+                coin.Top += carSpeed;
+                if (coin.Top > Height)
+                {
+                    ResetCoinPosition(coin);
+                }
+            }
+        }
 
-		private void buttonExit_Click(object sender, EventArgs e)
-		{
-			panelMenu.Show();
-		}
+        private void ResetCoinPosition(PictureBox coin)
+        {
+            coin.Top = -coin.Height;
+            coin.Left = random.Next(0, Width - coin.Width);
+        }
 
-		private void buttonHelp_Click(object sender, EventArgs e)
-		{
-			Help.ShowHelp(this, @"C:\Users\khha4\Race\help.chm", HelpNavigator.TableOfContents);
-		}
+        private void CollectCoins()
+        {
+            for (int i = 0; i < coins.Count; i++)
+            {
+                if (mainCar.Bounds.IntersectsWith(coins[i].Bounds))
+                {
+                    coinCount++;
+                    labelCoins.Text = $"Coins: {coinCount}";
+                    ResetCoinPosition(coins[i]);
+                }
+            }
+        }
+                
 
-		private void buttonStart_Click(object sender, EventArgs e)
-		{
-			StartGame();
-			panelGame.Show();
-			panelMenu.Hide();
-		}
+        private void RaceGame_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Right:
+                    MoveCarRight();
+                    break;
+                case Keys.Left:
+                    MoveCarLeft();
+                    break;
+                case Keys.Up:
+                    IncreaseSpeed();
+                    break;
+                case Keys.Down:
+                    DecreaseSpeed();
+                    break;
+                case Keys.Escape:
+                    PauseGame();
+                    break;
+            }
+        }
 
-		private void buttonMenuExit_Click(object sender, EventArgs e)
-		{
-			this.Close();
-		}
-	}
+        private void MoveCarRight()
+        {
+            if (carSpeed != 0 && mainCar.Right < 500)
+                mainCar.Left += CAR_MOVE_STEP;
+        }
+
+        private void MoveCarLeft()
+        {
+            if (carSpeed != 0 && mainCar.Left > 0)
+                mainCar.Left -= CAR_MOVE_STEP;
+        }
+
+        private void IncreaseSpeed()
+        {
+            if (carSpeed < MAX_CAR_SPEED)
+                carSpeed++;
+        }
+
+        private void DecreaseSpeed()
+        {
+            if (carSpeed > 0)
+                carSpeed--;
+        }
+
+        private void PauseGame()
+        {
+            SetupTimers(false);
+            ShowPanel(panelPause);
+        }
+
+        
+        private void TimerTowardCars_Tick(object sender, EventArgs e)
+        {
+            MoveTowardCars();
+            CheckCollisions();
+        }
+
+        private void MoveTowardCars()
+        {
+            var speeds = new[] { carSpeed + 4, carSpeed + 2, carSpeed + 3 };
+
+            for (int i = 0; i < towardCars.Count; i++)
+            {
+                MoveCar(towardCars[i], speeds[i]);
+            }
+        }
+
+        private void MoveCar(PictureBox car, int speed)
+        {
+            if (car == null) return;
+
+            car.Top += speed;
+            if (car.Top > Height)
+            {
+                ResetCarPosition(car);
+            }
+        }
+               
+
+        private void ResetCarPosition(PictureBox car)
+        {
+            if (car == null) return;
+
+            car.Top = -car.Height;
+            car.Left = random.Next(0, Width - car.Width);
+        }
+
+        private void CheckCollisions()
+        {
+            foreach (var car in towardCars)
+            {
+                if (mainCar.Bounds.IntersectsWith(car.Bounds))
+                {
+                    GameOver();
+                    return;
+                }
+            }
+        }
+
+
+        private void GameOver()
+        {
+            SetupTimers(false);
+
+            if (coinCount < MIN_COINS_FOR_CONTINUE)
+            {
+                ShowGameOverMessage();
+            }
+            else
+            {
+                OfferContinueOption();
+            }
+        }
+
+        private void ShowGameOverMessage()
+        {
+            MessageBox.Show("Game Over!", "Приехали!");
+            ShowPanel(panelPause);
+            ShowPanel(panelMenu);
+        }
+
+        private void OfferContinueOption()
+        {
+            var result = MessageBox.Show("Продолжить? (-15 coins)", "Приехали!",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+                ContinueGame();
+            else
+                ShowPanel(panelPause);
+        }
+
+        private void ContinueGame()
+        {
+            coinCount -= CONTINUE_COST;
+            labelCoins.Text = $"Coins: {coinCount}";
+            ResetGameState();
+        }
+
+        private void StartGame()
+        {
+            score = 0;
+            coinCount = 0;
+            carSpeed = INITIAL_CAR_SPEED;
+            ResetGameState();
+            ShowPanel(panelGame);
+        }
+
+        private void ResetGameState()
+        {
+            carSpeed = INITIAL_CAR_SPEED;
+            SetupTimers(true);
+
+            foreach (var car in towardCars)
+            {
+                ResetCarPosition(car);
+            }
+        }
+
+       
+        private void TimerMenu_Tick(object sender, EventArgs e)
+        {
+            AnimateMenuLanes();
+            AnimateMenuCars();
+        }
+
+        private void AnimateMenuLanes()
+        {
+            MoveLanes(laneGroups[2], laneGroups[3]);
+        }
+
+        private void AnimateMenuCars()
+        {
+            var menuSpeeds = new[] { 5, 3, 4 };
+
+            for (int i = 0; i < menuCars.Count; i++)
+            {
+                MoveCar(menuCars[i], menuSpeeds[i]);
+            }
+        }
+
+                
+        private void ButtonPause_Click(object sender, EventArgs e) => PauseGame();
+
+        private void ButtonResume_Click(object sender, EventArgs e)
+        {
+            SetupTimers(true);
+            ShowPanel(panelGame);
+        }
+
+        private void ButtonExit_Click(object sender, EventArgs e) => ShowPanel(panelMenu);
+
+        private void ButtonHelp_Click(object sender, EventArgs e)
+        {
+            Help.ShowHelp(this, @"C:\Users\khha4\Race\help.chm", HelpNavigator.TableOfContents);
+        }
+
+        private void ButtonStart_Click(object sender, EventArgs e) => StartGame();
+
+        private void ButtonMenuExit_Click(object sender, EventArgs e) => Close();
+
+        private void RaceGame_Load(object sender, EventArgs e) => InitializeGame();
+
+        
+    }
 }
-

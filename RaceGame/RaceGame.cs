@@ -9,14 +9,16 @@
         }
 
         
-        private const int MIN_COINS_FOR_CONTINUE = 15;
-        private const int CONTINUE_COST = 15;
-        private const int INITIAL_CAR_SPEED = 2;
-        private const int MAX_CAR_SPEED = 21;
-        private const int LANE_COUNT = 5;
-        private const int CAR_MOVE_STEP = 9;
-
+        private const int minCoinsForContinue = 15;
+        private const int continueCost = 15;
+        private const int initialCarSpeed = 2;
+        private const int maxCarSpeed = 21;
         
+        private const int carMoveStep = 9;
+        private const int leftBoundary = 0;
+        private const int gameAreaWidth = 500;
+        private const int scoreDivisor = 10;
+
         private readonly List<Label>[] laneGroups = new List<Label>[4];
         private readonly List<PictureBox> coins = new List<PictureBox>();
         private readonly List<PictureBox> towardCars = new List<PictureBox>();
@@ -25,7 +27,7 @@
         private Random random = new Random();
         private int score = 0;
         private int coinCount = 0;
-        private int carSpeed = INITIAL_CAR_SPEED;
+        private int carSpeed = initialCarSpeed;
 
         private void InitializeGame()
         {
@@ -128,7 +130,7 @@
 
         private void CollectCoins()
         {
-            for (int i = 0; i < coins.Count; i++)
+            for (var i = 0; i < coins.Count; i++)
             {
                 if (mainCar.Bounds.IntersectsWith(coins[i].Bounds))
                 {
@@ -164,19 +166,19 @@
 
         private void MoveCarRight()
         {
-            if (carSpeed != 0 && mainCar.Right < 500)
-                mainCar.Left += CAR_MOVE_STEP;
+            if (carSpeed != 0 && mainCar.Right < gameAreaWidth)
+                mainCar.Left += carMoveStep;
         }
 
         private void MoveCarLeft()
         {
-            if (carSpeed != 0 && mainCar.Left > 0)
-                mainCar.Left -= CAR_MOVE_STEP;
+            if (carSpeed != 0 && mainCar.Left > leftBoundary)
+                mainCar.Left -= carMoveStep;
         }
 
         private void IncreaseSpeed()
         {
-            if (carSpeed < MAX_CAR_SPEED)
+            if (carSpeed < maxCarSpeed)
                 carSpeed++;
         }
 
@@ -203,7 +205,7 @@
         {
             var speeds = new[] { carSpeed + 4, carSpeed + 2, carSpeed + 3 };
 
-            for (int i = 0; i < towardCars.Count; i++)
+            for (var i = 0; i < towardCars.Count; i++)
             {
                 MoveCar(towardCars[i], speeds[i]);
             }
@@ -246,7 +248,7 @@
         {
             SetupTimers(false);
 
-            if (coinCount < MIN_COINS_FOR_CONTINUE)
+            if (coinCount < minCoinsForContinue)
             {
                 ShowGameOverMessage();
             }
@@ -276,7 +278,7 @@
 
         private void ContinueGame()
         {
-            coinCount -= CONTINUE_COST;
+            coinCount -= continueCost;
             labelCoins.Text = $"Coins: {coinCount}";
             ResetGameState();
         }
@@ -285,14 +287,14 @@
         {
             score = 0;
             coinCount = 0;
-            carSpeed = INITIAL_CAR_SPEED;
+            carSpeed = initialCarSpeed;
             ResetGameState();
             ShowPanel(panelGame);
         }
 
         private void ResetGameState()
         {
-            carSpeed = INITIAL_CAR_SPEED;
+            carSpeed = initialCarSpeed;
             SetupTimers(true);
 
             foreach (var car in towardCars)

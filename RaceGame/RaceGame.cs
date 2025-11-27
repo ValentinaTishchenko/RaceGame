@@ -88,7 +88,7 @@
 
         private void UpdateScore()
         {
-            labelScore.Text = $"Score: {score / 10}";
+            labelScore.Text = $"Score: {score / scoreDivisor}";
             if (carSpeed != 0) score++;
         }
 
@@ -319,7 +319,7 @@
         {
             var menuSpeeds = new[] { 5, 3, 4 };
 
-            for (int i = 0; i < menuCars.Count; i++)
+            for (var i = 0; i < menuCars.Count; i++)
             {
                 MoveCar(menuCars[i], menuSpeeds[i]);
             }

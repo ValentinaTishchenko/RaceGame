@@ -41,10 +41,10 @@
         private void InitializeLanes()
         {
             
-            laneGroups[0] = new List<Label> { LaneOne1, LaneOne2, LaneOne3, LaneOne4, LaneOne5 };
-            laneGroups[1] = new List<Label> { LaneTwo1, LaneTwo2, LaneTwo3, LaneTwo4, LaneTwo5 };
-            laneGroups[2] = new List<Label> { MenuOneLane1, MenuOneLane2, MenuOneLane3, MenuOneLane4, MenuOneLane5 };
-            laneGroups[3] = new List<Label> { MenuTwoLane1, MenuTwoLane2, MenuTwoLane3, MenuTwoLane4, MenuTwoLane5 };
+            laneGroups[0] = new List<Label> { laneOne1, laneOne2, laneOne3, laneOne4, laneOne5 };
+            laneGroups[1] = new List<Label> { laneTwo1, laneTwo2, laneTwo3, laneTwo4, laneTwo5 };
+            laneGroups[2] = new List<Label> { menuOneLane1, menuOneLane2, menuOneLane3, menuOneLane4, menuOneLane5 };
+            laneGroups[3] = new List<Label> { menuTwoLane1, menuTwoLane2, menuTwoLane3, menuTwoLane4, menuTwoLane5 };
         }
 
         private void InitializeCoins()
@@ -166,7 +166,7 @@
 
         private void MoveCarRight()
         {
-            if (carSpeed != 0 && mainCar.Right < gameAreaWidth)
+            if (carSpeed != 0 && mainCar.Right < panelGame.Width)
                 mainCar.Left += carMoveStep;
         }
 

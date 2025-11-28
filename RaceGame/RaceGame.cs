@@ -170,14 +170,24 @@
 
         private void MoveCarRight()
         {
-            if (carSpeed != 0 && mainCar.Right < panelGame.Width)
+            if (carSpeed != 0 )
                 mainCar.Left += carMoveStep;
+
+            if (mainCar.Left >= panelGame.Width)
+            {
+                mainCar.Left = -mainCar.Width;
+            }
         }
 
         private void MoveCarLeft()
         {
-            if (carSpeed != 0 && mainCar.Left > leftBoundary)
+            if (carSpeed != 0 )
                 mainCar.Left -= carMoveStep;
+
+            if (mainCar.Right <= 0)
+            {
+                mainCar.Left = panelGame.Width;
+            }
         }
 
         private void IncreaseSpeed()

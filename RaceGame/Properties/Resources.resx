@@ -117,4 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="GameRules" xml:space="preserve">
+    <value>ПРАВИЛА ИГРЫ "RACE"
+
+УПРАВЛЕНИЕ:
+← → - движение влево/вправо
+↑ ↓ - увеличение/уменьшение скорости
+Pause- пауза (кнопка)
+
+ЦЕЛЬ ИГРЫ:
+- Набирать очки, избегая столкновений
+- Собирать монеты для продолжения игры
+- Управлять скоростью для лучшего контроля
+
+ПРАВИЛА:
+- При столкновении игра заканчивается
+- Если у вас 15+ монет, можно продолжить игру
+- Скорость влияет на сложность управления
+
+УДАЧНОЙ ИГРЫ!</value>
+  </data>
 </root>

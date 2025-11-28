@@ -347,7 +347,9 @@
 
         private void ButtonHelp_Click(object sender, EventArgs e)
         {
-            Help.ShowHelp(this, @"C:\Users\khha4\Race\help.chm", HelpNavigator.TableOfContents);
+            string rules = Properties.Resources.GameRules;
+            MessageBox.Show(rules, "Правила игры",
+                           MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void ButtonStart_Click(object sender, EventArgs e) => StartGame();

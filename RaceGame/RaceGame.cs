@@ -8,16 +8,20 @@
             InitializeGame();
         }
 
-        
+
         private const int minCoinsForContinue = 15;
         private const int continueCost = 15;
         private const int initialCarSpeed = 2;
         private const int maxCarSpeed = 21;
-        
+
         private const int carMoveStep = 9;
         private const int leftBoundary = 0;
-        private const int gameAreaWidth = 500;
         private const int scoreDivisor = 10;
+
+        private const int overtakeSpeedBonus = 4;
+        private const int normalSpeedBonus = 2;
+        private const int fastSpeedBonus = 3;
+
 
         private readonly List<Label>[] laneGroups = new List<Label>[4];
         private readonly List<PictureBox> coins = new List<PictureBox>();
@@ -40,7 +44,7 @@
 
         private void InitializeLanes()
         {
-            
+
             laneGroups[0] = new List<Label> { laneOne1, laneOne2, laneOne3, laneOne4, laneOne5 };
             laneGroups[1] = new List<Label> { laneTwo1, laneTwo2, laneTwo3, laneTwo4, laneTwo5 };
             laneGroups[2] = new List<Label> { menuOneLane1, menuOneLane2, menuOneLane3, menuOneLane4, menuOneLane5 };
@@ -77,7 +81,7 @@
             panelToShow.Show();
         }
 
-        
+
         private void TimerRoad_Tick(object sender, EventArgs e)
         {
             UpdateScore();
@@ -140,7 +144,7 @@
                 }
             }
         }
-                
+
 
         private void RaceGame_KeyDown(object sender, KeyEventArgs e)
         {
@@ -194,7 +198,7 @@
             ShowPanel(panelPause);
         }
 
-        
+
         private void TimerTowardCars_Tick(object sender, EventArgs e)
         {
             MoveTowardCars();
@@ -203,7 +207,12 @@
 
         private void MoveTowardCars()
         {
-            var speeds = new[] { carSpeed + 4, carSpeed + 2, carSpeed + 3 };
+            var speeds = new[] 
+            {
+                carSpeed + overtakeSpeedBonus,
+                carSpeed + normalSpeedBonus,
+                carSpeed + fastSpeedBonus
+            };
 
             for (var i = 0; i < towardCars.Count; i++)
             {
@@ -221,7 +230,7 @@
                 ResetCarPosition(car);
             }
         }
-               
+
 
         private void ResetCarPosition(PictureBox car)
         {
@@ -303,7 +312,7 @@
             }
         }
 
-       
+
         private void TimerMenu_Tick(object sender, EventArgs e)
         {
             AnimateMenuLanes();
@@ -325,7 +334,7 @@
             }
         }
 
-                
+
         private void ButtonPause_Click(object sender, EventArgs e) => PauseGame();
 
         private void ButtonResume_Click(object sender, EventArgs e)
@@ -347,6 +356,6 @@
 
         private void RaceGame_Load(object sender, EventArgs e) => InitializeGame();
 
-        
+
     }
 }

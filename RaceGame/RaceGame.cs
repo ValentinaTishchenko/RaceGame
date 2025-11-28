@@ -1,4 +1,6 @@
-﻿namespace Race
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+namespace Race
 {
     public partial class RaceGame : Form
     {

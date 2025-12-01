@@ -1,29 +1,9 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-namespace Race
+﻿namespace Race
 {
     public partial class RaceGame : Form
     {
-        public RaceGame()
-        {
-            InitializeComponent();
-            InitializeGame();
-        }
-
-
-        private const int minCoinsForContinue = 15;
-        private const int continueCost = 15;
-        private const int initialCarSpeed = 2;
-        private const int maxCarSpeed = 21;
-
-        private const int carMoveStep = 9;
-        private const int leftBoundary = 0;
-        private const int scoreDivisor = 10;
-
-        private const int overtakeSpeedBonus = 4;
-        private const int normalSpeedBonus = 2;
-        private const int fastSpeedBonus = 3;
-
+        private readonly ResultsManager resultsManager;
+        private RacePlayer currentPlayer;
 
         private readonly List<Label>[] laneGroups = new List<Label>[4];
         private readonly List<PictureBox> coins = new List<PictureBox>();
@@ -31,9 +11,34 @@ namespace Race
         private readonly List<PictureBox> menuCars = new List<PictureBox>();
 
         private Random random = new Random();
-        private int score = 0;
-        private int coinCount = 0;
-        private int carSpeed = initialCarSpeed;
+        private bool playerNameRequested = false;
+        private bool isGameOver = false;
+
+        public RaceGame()
+        {
+            InitializeComponent();
+            resultsManager = new ResultsManager();
+            currentPlayer = new RacePlayer();
+
+            this.Shown += (s, e) => RequestPlayerNameOnce();
+
+            InitializeGame();
+        }       
+
+        private void RequestPlayerNameOnce()
+        {
+            if (playerNameRequested) return;
+            playerNameRequested = true;
+            
+            if (currentPlayer.Name != "Анонимный гонщик")
+                return;
+
+            var name = ShowNameInputDialog();
+            if (!string.IsNullOrEmpty(name))
+            {                
+                currentPlayer.Name = name;
+            }
+        }      
 
         private void InitializeGame()
         {
@@ -41,7 +46,7 @@ namespace Race
             InitializeCoins();
             InitializeCars();
             SetupTimers(false);
-            ShowPanel(panelMenu);
+            ShowPanel(panelMenu);            
         }
 
         private void InitializeLanes()
@@ -94,8 +99,8 @@ namespace Race
 
         private void UpdateScore()
         {
-            labelScore.Text = $"Score: {score / scoreDivisor}";
-            if (carSpeed != 0) score++;
+            labelScore.Text = $"Score: {currentPlayer.Score / GameConstants.ScoreDivisor}";
+            if (currentPlayer.CarSpeed != 0) currentPlayer.Score++;
         }
 
         private void MoveLanes(List<Label> lanesOne, List<Label> lanesTwo)
@@ -108,7 +113,7 @@ namespace Race
         {
             foreach (var lane in lanes)
             {
-                lane.Top += carSpeed;
+                lane.Top += currentPlayer.CarSpeed; 
                 if (lane.Top >= Height)
                 {
                     lane.Top = -lane.Height;
@@ -120,7 +125,7 @@ namespace Race
         {
             foreach (var coin in coins)
             {
-                coin.Top += carSpeed;
+                coin.Top += currentPlayer.CarSpeed;
                 if (coin.Top > Height)
                 {
                     ResetCoinPosition(coin);
@@ -140,8 +145,8 @@ namespace Race
             {
                 if (mainCar.Bounds.IntersectsWith(coins[i].Bounds))
                 {
-                    coinCount++;
-                    labelCoins.Text = $"Coins: {coinCount}";
+                    currentPlayer.Coins++;
+                    labelCoins.Text = $"Coins: {currentPlayer.Coins}";
                     ResetCoinPosition(coins[i]);
                 }
             }
@@ -172,8 +177,8 @@ namespace Race
 
         private void MoveCarRight()
         {
-            if (carSpeed != 0 )
-                mainCar.Left += carMoveStep;
+            if (currentPlayer.CarSpeed != 0)
+                mainCar.Left += GameConstants.CarMoveStep;
 
             if (mainCar.Left >= panelGame.Width)
             {
@@ -183,10 +188,10 @@ namespace Race
 
         private void MoveCarLeft()
         {
-            if (carSpeed != 0 )
-                mainCar.Left -= carMoveStep;
+            if (currentPlayer.CarSpeed != 0)
+                mainCar.Left -= GameConstants.CarMoveStep;
 
-            if (mainCar.Right <= 0)
+            if (mainCar.Right <= GameConstants.LeftBoundary)
             {
                 mainCar.Left = panelGame.Width;
             }
@@ -194,14 +199,14 @@ namespace Race
 
         private void IncreaseSpeed()
         {
-            if (carSpeed < maxCarSpeed)
-                carSpeed++;
+            if (currentPlayer.CarSpeed < GameConstants.MaxCarSpeed)
+                currentPlayer.CarSpeed++;
         }
 
         private void DecreaseSpeed()
         {
-            if (carSpeed > 0)
-                carSpeed--;
+            if (currentPlayer.CarSpeed > 0)
+                currentPlayer.CarSpeed--;
         }
 
         private void PauseGame()
@@ -219,11 +224,11 @@ namespace Race
 
         private void MoveTowardCars()
         {
-            var speeds = new[] 
+            var speeds = new[]
             {
-                carSpeed + overtakeSpeedBonus,
-                carSpeed + normalSpeedBonus,
-                carSpeed + fastSpeedBonus
+                currentPlayer.CarSpeed + GameConstants.OvertakeSpeedBonus,
+                currentPlayer.CarSpeed + GameConstants.NormalSpeedBonus,
+                currentPlayer.CarSpeed + GameConstants.FastSpeedBonus
             };
 
             for (var i = 0; i < towardCars.Count; i++)
@@ -268,22 +273,19 @@ namespace Race
         private void GameOver()
         {
             SetupTimers(false);
+            if (isGameOver) return;
+            isGameOver = true;
 
-            if (coinCount < minCoinsForContinue)
+            if (currentPlayer.Coins < GameConstants.MinCoinsForContinue)
             {
-                ShowGameOverMessage();
+                SaveGameResult();
+                MessageBox.Show("Game Over!", "Приехали!");
+                ShowPanel(panelMenu);
             }
             else
             {
                 OfferContinueOption();
             }
-        }
-
-        private void ShowGameOverMessage()
-        {
-            MessageBox.Show("Game Over!", "Приехали!");
-            ShowPanel(panelPause);
-            ShowPanel(panelMenu);
         }
 
         private void OfferContinueOption()
@@ -292,30 +294,113 @@ namespace Race
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
+            {
+                SaveGameResult();
                 ContinueGame();
+            }
             else
-                ShowPanel(panelPause);
+                SaveGameResult();
+            ShowPanel(panelMenu);
+        }
+
+        private void SaveGameResult()
+        {
+            if (currentPlayer.Score == 0 && currentPlayer.Coins == 0)
+                return;
+
+            var gameResult = new GameResult(
+                currentPlayer.Name,
+                currentPlayer.Score / GameConstants.ScoreDivisor,
+                currentPlayer.Coins);
+
+            resultsManager.SaveResult(gameResult);
+        }
+
+        private string ShowNameInputDialog()
+        {
+            using (var inputForm = new Form())
+            {
+                inputForm.Text = "Введите ваше имя";
+                inputForm.Size = new Size(300, 150);
+                inputForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                inputForm.StartPosition = FormStartPosition.CenterParent;
+                inputForm.MaximizeBox = false;
+                inputForm.MinimizeBox = false;
+
+                var textBox = new TextBox()
+                {
+                    Location = new Point(20, 20),
+                    Size = new Size(240, 20),
+                    MaxLength = GameConstants.MaxPlayerNameLength,
+                    Text = currentPlayer.Name == "Анонимный гонщик" ? "" : currentPlayer.Name
+                };
+
+                var okButton = new Button()
+                {
+                    Text = "OK",
+                    DialogResult = DialogResult.OK,
+                    Location = new Point(80, 60),
+                    Size = new Size(60, 25)
+                };
+
+                var cancelButton = new Button()
+                {
+                    Text = "Отмена",
+                    DialogResult = DialogResult.Cancel,
+                    Location = new Point(150, 60),
+                    Size = new Size(100, 25)
+                };
+
+                inputForm.Controls.AddRange(new Control[] { textBox, okButton, cancelButton });
+                inputForm.AcceptButton = okButton;
+                inputForm.CancelButton = cancelButton;
+
+                if (inputForm.ShowDialog() == DialogResult.OK)
+                {
+                    return textBox.Text.Trim();
+                }
+
+                return string.Empty;
+            }
+        }       
+
+        private void ButtonResults_Click(object sender, EventArgs e)
+        {
+            var json = resultsManager.GetResultsJson();
+
+            if (json == "[]")
+            {
+                MessageBox.Show("Результатов пока нет!", "Таблица результатов");
+                return;
+            }
+
+            MessageBox.Show(json, "Результаты (JSON)",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+
         }
 
         private void ContinueGame()
         {
-            coinCount -= continueCost;
-            labelCoins.Text = $"Coins: {coinCount}";
+            currentPlayer.Coins -= GameConstants.ContinueCost;
+            labelCoins.Text = $"Coins: {currentPlayer.Coins}";
             ResetGameState();
+           
         }
 
         private void StartGame()
         {
-            score = 0;
-            coinCount = 0;
-            carSpeed = initialCarSpeed;
+            currentPlayer.Score = 0;
+            currentPlayer.Coins = 0;
+            currentPlayer.CarSpeed = GameConstants.InitialCarSpeed;
+            isGameOver = false;
+
             ResetGameState();
             ShowPanel(panelGame);
         }
 
         private void ResetGameState()
         {
-            carSpeed = initialCarSpeed;
+            
             SetupTimers(true);
 
             foreach (var car in towardCars)
@@ -364,12 +449,16 @@ namespace Race
                            MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void ButtonStart_Click(object sender, EventArgs e) => StartGame();
+        private void ButtonStart_Click(object sender, EventArgs e)
+        {
+           
+                StartGame();
+        }           
+           
 
         private void ButtonMenuExit_Click(object sender, EventArgs e) => Close();
 
-        private void RaceGame_Load(object sender, EventArgs e) => InitializeGame();
-
+        private void RaceGame_Load(object sender, EventArgs e) => InitializeGame();      
 
     }
 }

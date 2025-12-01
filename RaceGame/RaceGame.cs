@@ -23,22 +23,22 @@
             this.Shown += (s, e) => RequestPlayerNameOnce();
 
             InitializeGame();
-        }       
+        }
 
         private void RequestPlayerNameOnce()
         {
             if (playerNameRequested) return;
             playerNameRequested = true;
-            
+
             if (currentPlayer.Name != "Анонимный гонщик")
                 return;
 
             var name = ShowNameInputDialog();
             if (!string.IsNullOrEmpty(name))
-            {                
+            {
                 currentPlayer.Name = name;
             }
-        }      
+        }
 
         private void InitializeGame()
         {
@@ -46,7 +46,7 @@
             InitializeCoins();
             InitializeCars();
             SetupTimers(false);
-            ShowPanel(panelMenu);            
+            ShowPanel(panelMenu);
         }
 
         private void InitializeLanes()
@@ -113,7 +113,7 @@
         {
             foreach (var lane in lanes)
             {
-                lane.Top += currentPlayer.CarSpeed; 
+                lane.Top += currentPlayer.CarSpeed;
                 if (lane.Top >= Height)
                 {
                     lane.Top = -lane.Height;
@@ -362,7 +362,7 @@
 
                 return string.Empty;
             }
-        }       
+        }
 
         private void ButtonResults_Click(object sender, EventArgs e)
         {
@@ -384,7 +384,7 @@
             currentPlayer.Coins -= GameConstants.ContinueCost;
             labelCoins.Text = $"Coins: {currentPlayer.Coins}";
             ResetGameState();
-           
+
         }
 
         private void StartGame()
@@ -400,7 +400,7 @@
 
         private void ResetGameState()
         {
-            
+
             SetupTimers(true);
 
             foreach (var car in towardCars)
@@ -423,7 +423,11 @@
 
         private void AnimateMenuCars()
         {
-            var menuSpeeds = new[] { 5, 3, 4 };
+            var menuSpeeds = new[] {
+            GameConstants.OvertakeSpeedBonus,
+            GameConstants.NormalSpeedBonus,
+            GameConstants.FastSpeedBonus
+        };
 
             for (var i = 0; i < menuCars.Count; i++)
             {
@@ -467,14 +471,14 @@
 
         private void ButtonStart_Click(object sender, EventArgs e)
         {
-           
-                StartGame();
-        }           
-           
+
+            StartGame();
+        }
+
 
         private void ButtonMenuExit_Click(object sender, EventArgs e) => Close();
 
-        private void RaceGame_Load(object sender, EventArgs e) => InitializeGame();      
+        private void RaceGame_Load(object sender, EventArgs e) => InitializeGame();
 
     }
 }

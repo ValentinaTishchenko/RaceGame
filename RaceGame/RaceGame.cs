@@ -444,9 +444,25 @@
 
         private void ButtonHelp_Click(object sender, EventArgs e)
         {
-            string rules = Properties.Resources.GameRules;
-            MessageBox.Show(rules, "Правила игры",
-                           MessageBoxButtons.OK, MessageBoxIcon.Information);
+            try
+            {
+
+                var helpPath = Path.Combine(Application.StartupPath, "help.chm");
+
+                if (!File.Exists(helpPath))
+                {
+                    MessageBox.Show($"Файл справки не найден:\n{helpPath}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                Help.ShowHelp(this, helpPath, HelpNavigator.TableOfContents);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось открыть справку:\n{ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void ButtonStart_Click(object sender, EventArgs e)

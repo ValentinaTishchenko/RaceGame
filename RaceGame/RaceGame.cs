@@ -196,25 +196,35 @@
         private void MoveCarRight()
         {
             if (currentPlayer.CarSpeed != 0)
-                mainCar.Left += GameConstants.CarMoveStep;
-
-            if (mainCar.Right >= panelGame.Width)
-            {
-                mainCar.Left = 0 - mainCar.Width;
+            {                
+                if (mainCar.Right + GameConstants.CarMoveStep > panelGame.Width)
+                {                   
+                    var overlap = (mainCar.Right + GameConstants.CarMoveStep) - panelGame.Width;                    
+                    mainCar.Left = 0 - mainCar.Width + overlap;
+                }
+                else
+                {
+                    mainCar.Left += GameConstants.CarMoveStep;
+                }
             }
         }
 
         private void MoveCarLeft()
         {
             if (currentPlayer.CarSpeed != 0)
-                mainCar.Left -= GameConstants.CarMoveStep;
-
-            if (mainCar.Left <= 0)
-            {
-                mainCar.Left = panelGame.Width;
+            {               
+                if (mainCar.Left - GameConstants.CarMoveStep < 0)
+                {
+                    
+                    var overlap = 0 - (mainCar.Left - GameConstants.CarMoveStep);                   
+                    mainCar.Left = panelGame.Width - overlap;
+                }
+                else
+                {
+                    mainCar.Left -= GameConstants.CarMoveStep;
+                }
             }
         }
-
         private void IncreaseSpeed()
         {
             if (currentPlayer.CarSpeed < GameConstants.MaxCarSpeed)

@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="background_music.wav" />
     <None Remove="help.chm" />
     <None Remove="Resources\Coin.png" />
     <None Remove="Resources\mainCar1.png" />
@@ -24,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="background_music.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="help.chm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

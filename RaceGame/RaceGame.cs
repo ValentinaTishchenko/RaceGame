@@ -1,4 +1,6 @@
-﻿namespace Race
+﻿using System.Media;
+
+namespace Race
 {
     public partial class RaceGame : Form
     {
@@ -11,8 +13,10 @@
         private readonly List<PictureBox> menuCars = new List<PictureBox>();
 
         private Random random = new Random();
-        private bool playerNameRequested = false;
         private bool isGameOver = false;
+
+        private SoundPlayer backgroundMusic;
+
 
         public RaceGame()
         {
@@ -23,37 +27,21 @@
             this.Shown += (s, e) => RequestPlayerNameOnce();
 
             InitializeGame();
-        }
 
-        private void RequestPlayerNameOnce()
+            InitializeBackgroundMusic();
+            this.FormClosing += RaceGame_FormClosing;
+        }       
+
+        private void InitializeBackgroundMusic()
         {
-           
-            if (currentPlayer.Name != "Анонимный гонщик")
-                return;
+            string musicPath = Path.Combine(Application.StartupPath, "background_music.wav");
 
-            var name = ShowNameInputDialog();
-            if (!string.IsNullOrEmpty(name))
+            if (File.Exists(musicPath))
             {
-                string validatedName = ValidatePlayerName(name);
-                currentPlayer.Name = validatedName;
-            }
-        }
-
-        private string ValidatePlayerName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return "Анонимный гонщик";
-            }
-            
-            string trimmedName = name.Trim();
-                        
-            if (trimmedName.Length > GameConstants.MaxPlayerNameLength)
-            {
-                return trimmedName.Substring(0, GameConstants.MaxPlayerNameLength);
+                backgroundMusic = new SoundPlayer(musicPath);
+                backgroundMusic.PlayLooping();
             }
 
-            return trimmedName;
         }
 
         private void InitializeGame()
@@ -88,6 +76,37 @@
 
             towardCars.AddRange(new[] { towardCar1, towardCar2, towardCar3 });
             menuCars.AddRange(new[] { carMenu1, carMenu2, carMenu3 });
+        }
+
+        private void RequestPlayerNameOnce()
+        {
+
+            if (currentPlayer.Name != "Анонимный гонщик")
+                return;
+
+            var name = ShowNameInputDialog();
+            if (!string.IsNullOrEmpty(name))
+            {
+                string validatedName = ValidatePlayerName(name);
+                currentPlayer.Name = validatedName;
+            }
+        }
+
+        private string ValidatePlayerName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return "Анонимный гонщик";
+            }
+
+            string trimmedName = name.Trim();
+
+            if (trimmedName.Length > GameConstants.MaxPlayerNameLength)
+            {
+                return trimmedName.Substring(0, GameConstants.MaxPlayerNameLength);
+            }
+
+            return trimmedName;
         }
 
         private void SetTimersState(bool enabled)
@@ -195,33 +214,42 @@
 
         private void MoveCarRight()
         {
-            if (currentPlayer.CarSpeed != 0)
+            if (currentPlayer.CarSpeed == 0) return;
+
+            mainCar.Left += GameConstants.CarMoveStep;
+
+            if (mainCar.Right > panelGame.Width)
             {                
-                if (mainCar.Right + GameConstants.CarMoveStep > panelGame.Width)
-                {                   
-                    var overlap = (mainCar.Right + GameConstants.CarMoveStep) - panelGame.Width;                    
-                    mainCar.Left = 0 - mainCar.Width + overlap;
+                var overflow = mainCar.Right - panelGame.Width;
+                
+                if (overflow < mainCar.Width)
+                {                    
+                    mainCar.Left = -overflow;
                 }
                 else
-                {
-                    mainCar.Left += GameConstants.CarMoveStep;
+                {                    
+                    mainCar.Left = -mainCar.Width;
                 }
             }
         }
 
         private void MoveCarLeft()
         {
-            if (currentPlayer.CarSpeed != 0)
+            if (currentPlayer.CarSpeed == 0) return;
+
+            mainCar.Left -= GameConstants.CarMoveStep;
+           
+            if (mainCar.Left < 0)
             {               
-                if (mainCar.Left - GameConstants.CarMoveStep < 0)
-                {
-                    
-                    var overlap = 0 - (mainCar.Left - GameConstants.CarMoveStep);                   
-                    mainCar.Left = panelGame.Width - overlap;
+                var overflow = -mainCar.Left;
+                                
+                if (overflow < mainCar.Width)
+                {                    
+                    mainCar.Left = panelGame.Width - overflow;
                 }
                 else
-                {
-                    mainCar.Left -= GameConstants.CarMoveStep;
+                {                    
+                    mainCar.Left = panelGame.Width;
                 }
             }
         }
@@ -511,8 +539,16 @@
 
         private void ButtonMenuExit_Click(object sender, EventArgs e)
         {
-            Close();
+            
+            Application.Exit();
         }
 
+        private void RaceGame_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (backgroundMusic != null)
+            {
+                backgroundMusic.Stop();
+            }
+        }
     }
 }

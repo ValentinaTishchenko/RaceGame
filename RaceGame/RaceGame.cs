@@ -98,6 +98,8 @@
             timerTowardCars.Enabled = enabled;
         }
 
+        private void RaceGame_Load(object sender, EventArgs e) => InitializeGame();
+
         private void ShowPanel(Panel panelToShow)
         {
             panelMenu.Hide();
@@ -384,15 +386,15 @@
 
         private void ButtonResults_Click(object sender, EventArgs e)
         {
-            var json = resultsManager.GetResultsJson();
+            var result = resultsManager.GetResultsJson();
 
-            if (json == "[]")
+            if (result == "[]")
             {
                 MessageBox.Show("Результатов пока нет!", "Таблица результатов");
                 return;
             }
 
-            MessageBox.Show(json, "Результаты (JSON)",
+            MessageBox.Show(result, "Результаты (JSON)",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         }
@@ -454,7 +456,10 @@
         }
 
 
-        private void ButtonPause_Click(object sender, EventArgs e) => PauseGame();
+        private void ButtonPause_Click(object sender, EventArgs e)
+        {
+            PauseGame();
+        }
 
         private void ButtonResume_Click(object sender, EventArgs e)
         {
@@ -462,7 +467,10 @@
             ShowPanel(panelGame);
         }
 
-        private void ButtonExit_Click(object sender, EventArgs e) => ShowPanel(panelMenu);
+        private void ButtonExit_Click(object sender, EventArgs e)
+        {
+            ShowPanel(panelMenu);
+        }
 
         private void ButtonHelp_Click(object sender, EventArgs e)
         {
@@ -494,9 +502,10 @@
         }
 
 
-        private void ButtonMenuExit_Click(object sender, EventArgs e) => Close();
-
-        private void RaceGame_Load(object sender, EventArgs e) => InitializeGame();
+        private void ButtonMenuExit_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
 
     }
 }

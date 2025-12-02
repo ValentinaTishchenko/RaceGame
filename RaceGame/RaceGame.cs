@@ -180,9 +180,9 @@
             if (currentPlayer.CarSpeed != 0)
                 mainCar.Left += GameConstants.CarMoveStep;
 
-            if (mainCar.Left >= panelGame.Width)
+            if (mainCar.Right >= panelGame.Width)
             {
-                mainCar.Left = -mainCar.Width;
+                mainCar.Left = 0 - mainCar.Width;
             }
         }
 
@@ -191,7 +191,7 @@
             if (currentPlayer.CarSpeed != 0)
                 mainCar.Left -= GameConstants.CarMoveStep;
 
-            if (mainCar.Right <= GameConstants.LeftBoundary)
+            if (mainCar.Left <= 0)
             {
                 mainCar.Left = panelGame.Width;
             }

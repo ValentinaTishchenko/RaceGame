@@ -63,7 +63,7 @@
             InitializeLanes();
             InitializeCoins();
             InitializeCars();
-            SetupTimers(false);
+            SetTimersState(false);
             ShowPanel(panelMenu);
         }
 
@@ -92,7 +92,7 @@
             menuCars.AddRange(new[] { carMenu1, carMenu2, carMenu3 });
         }
 
-        private void SetupTimers(bool enabled)
+        private void SetTimersState(bool enabled)
         {
             timerRoad.Enabled = enabled;
             timerTowardCars.Enabled = enabled;
@@ -231,7 +231,7 @@
 
         private void PauseGame()
         {
-            SetupTimers(false);
+            SetTimersState(false);
             ShowPanel(panelPause);
         }
 
@@ -292,7 +292,7 @@
 
         private void GameOver()
         {
-            SetupTimers(false);
+            SetTimersState(false);
             if (isGameOver) return;
             isGameOver = true;
 
@@ -420,7 +420,7 @@
         private void ResetGameState()
         {
 
-            SetupTimers(true);
+            SetTimersState(true);
 
             foreach (var car in towardCars)
             {
@@ -462,7 +462,7 @@
 
         private void ButtonResume_Click(object sender, EventArgs e)
         {
-            SetupTimers(true);
+            SetTimersState(true);
             ShowPanel(panelGame);
         }
 

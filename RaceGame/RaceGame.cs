@@ -27,9 +27,7 @@
 
         private void RequestPlayerNameOnce()
         {
-            if (playerNameRequested) return;
-            playerNameRequested = true;
-
+           
             if (currentPlayer.Name != "Анонимный гонщик")
                 return;
 

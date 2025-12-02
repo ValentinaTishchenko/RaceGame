@@ -36,8 +36,26 @@
             var name = ShowNameInputDialog();
             if (!string.IsNullOrEmpty(name))
             {
-                currentPlayer.Name = name;
+                string validatedName = ValidatePlayerName(name);
+                currentPlayer.Name = validatedName;
             }
+        }
+
+        private string ValidatePlayerName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return "Анонимный гонщик";
+            }
+            
+            string trimmedName = name.Trim();
+                        
+            if (trimmedName.Length > GameConstants.MaxPlayerNameLength)
+            {
+                return trimmedName.Substring(0, GameConstants.MaxPlayerNameLength);
+            }
+
+            return trimmedName;
         }
 
         private void InitializeGame()

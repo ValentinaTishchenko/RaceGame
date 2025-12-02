@@ -10,19 +10,7 @@ namespace Race
             get { return name; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    name = "Анонимный гонщик";
-                    return;
-                }
-
-                if (value.Length > GameConstants.MaxPlayerNameLength)
-                {
-                    name = value.Substring(0, GameConstants.MaxPlayerNameLength);
-                    return;
-                }
-
-                name = value;
+              name = value;
             }
         }
 

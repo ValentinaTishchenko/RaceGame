@@ -53,11 +53,6 @@ namespace Race
                 MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка");
             }
         }
-
-        public string GetResultsJson()
-        {
-            var results = GetAll();
-            return JsonSerializer.Serialize(results, jsonOptions);
-        }
+       
     }
 }

@@ -386,17 +386,16 @@
 
         private void ButtonResults_Click(object sender, EventArgs e)
         {
-            var result = resultsManager.GetResultsJson();
+            var results = resultsManager.GetAll();
 
-            if (result == "[]")
+            if (results == null || results.Count == 0)
             {
                 MessageBox.Show("Результатов пока нет!", "Таблица результатов");
                 return;
             }
 
-            MessageBox.Show(result, "Результаты (JSON)",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+            var resultsForm = new Race.resultsForm(results);
+            resultsForm.ShowDialog();
         }
 
         private void ContinueGame()

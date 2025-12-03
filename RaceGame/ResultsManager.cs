@@ -8,11 +8,10 @@ namespace Race
 
         private static readonly JsonSerializerOptions jsonOptions = new()
         {
-            WriteIndented = true,
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping           
+            WriteIndented = true                 
         };
 
-        public void SaveResult(GameResult result)
+        public static void SaveResult(GameResult result)
         {
             var allResults = GetAll();
             allResults.Insert(0, result);
@@ -25,7 +24,7 @@ namespace Race
             SaveToFile(topResults);
         }
 
-        public List<GameResult> GetAll()
+        public static List<GameResult> GetAll()
         {
             if (!FileService.FileExists(resultsFileName))
                 return new List<GameResult>();
@@ -41,7 +40,7 @@ namespace Race
             }
         }
 
-        private void SaveToFile(List<GameResult> results)
+        private static void SaveToFile(List<GameResult> results)
         {
             try
             {

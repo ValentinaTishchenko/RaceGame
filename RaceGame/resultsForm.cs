@@ -25,11 +25,14 @@
             for (var i = 0; i < displayCount; i++)
             {
                 var result = results[i];
-                dataGridView1.Rows.Add(                    
+                var player = result.Player;
+
+                dataGridView1.Rows.Add
+                (                    
                     result.Date.ToString("dd.MM.yyyy HH:mm"),
-                    result.PlayerName,
-                    result.Score.ToString("N0"),
-                    result.Coins.ToString("N0")
+                    player.Name,
+                    player.Score.ToString("N0"),
+                    player.Coins.ToString("N0")
                 );
 
             }
